@@ -1,0 +1,24 @@
+import request from './request';
+
+export const register = (data) => request.post('/auth/register', data);
+export const login = (data) => request.post('/auth/login', data);
+export const logout = () => request.post('/auth/logout');
+export const getProfile = () => request.get('/auth/profile');
+export const getDashboard = () => request.get('/auth/dashboard');
+export const getPosts = (params) => request.get('/posts', { params });
+export const createPost = (data) => request.post('/posts', data);
+export const updatePost = (id, data) => request.put(`/posts/${id}`, data);
+export const deletePost = (id) => request.delete(`/posts/${id}`);
+export const getPostDetail = (id, params) => request.get(`/posts/${id}`, { params });
+export const toggleLike = (id) => request.post(`/posts/${id}/like`);
+export const toggleFavorite = (id) => request.post(`/posts/${id}/favorite`);
+export const createComment = (id, data) => request.post(`/posts/${id}/comment`, data);
+export const deleteComment = (postId, commentId) => request.delete(`/posts/${postId}/comment/${commentId}`);
+export const getFollowing = () => request.get('/follows/following');
+export const getFans = () => request.get('/follows/fans');
+export const toggleFollow = (id) => request.post(`/follows/${id}/toggle`);
+export const getConversations = () => request.get('/messages/conversations');
+export const getPrivateHistory = (id) => request.get(`/messages/private/${id}`);
+export const sendPrivate = (id, data) => request.post(`/messages/private/${id}`, data);
+export const getGroupHistory = () => request.get('/messages/group');
+export const sendGroup = (data) => request.post('/messages/group', data);
