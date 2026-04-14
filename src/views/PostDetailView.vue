@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import { createComment, deleteComment, deletePost, getPostDetail, toggleFavorite, toggleFollow, toggleLike } from '../api';
+import { createComment, deleteComment, deletePost, getPostDetail, toggleFavorite, toggleFollow, toggleLike, incrementViews } from '../api';
 import { mapState } from 'vuex';
 
 const fileBaseURL = process.env.VUE_APP_FILE_BASE_URL || 'http://localhost:3000';
@@ -113,6 +113,8 @@ export default {
         });
         this.post = data.post;
         this.comments = data.comments;
+        // 增加浏览量
+        await incrementViews(this.$route.params.id);
       } finally {
         this.loading = false;
       }

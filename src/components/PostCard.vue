@@ -14,6 +14,7 @@
       <img v-for="image in post.images.slice(0, 3)" :key="image" :src="imageSrc(image)" alt="cover" @error="handleImageError">
     </div>
     <div class="post-actions" @click.stop>
+      <span><i class="el-icon-view"></i>{{ post.views || 0 }} 浏览</span>
       <span><i class="el-icon-thumb"></i>{{ post.likeCount }} 点赞</span>
       <span><i class="el-icon-star-off"></i>{{ post.favoriteCount }} 收藏</span>
       <span><i class="el-icon-chat-dot-round"></i>{{ post.commentCount }} 评论</span>

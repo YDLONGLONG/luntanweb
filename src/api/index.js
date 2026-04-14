@@ -20,6 +20,8 @@ export const getPostDetail = (id, params) => request.get(`/posts/${id}`, { param
 export const toggleLike = (id) => request.post(`/posts/${id}/like`);
 export const toggleFavorite = (id) => request.post(`/posts/${id}/favorite`);
 export const createComment = (id, data) => request.post(`/posts/${id}/comment`, data);
+export const incrementViews = (id) => request.post(`/posts/${id}/views`);
+export const getRecommendedPosts = (params) => request.get('/posts/recommended', { params });
 export const deleteComment = (postId, commentId) => request.delete(`/posts/${postId}/comment/${commentId}`);
 export const getFollowing = () => request.get('/follows/following');
 export const getFans = () => request.get('/follows/fans');

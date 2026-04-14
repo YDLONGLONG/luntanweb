@@ -60,10 +60,13 @@
             <el-button plain @click="$router.push('/settings')">个人设置</el-button>
           </div>
         </div>
-        <div class="card-panel side-card">
-          <div class="side-title">今日热议</div>
-          <ul>
-            <li v-for="item in hotTopics" :key="item">{{ item }}</li>
+        <div class="card-panel side-card" v-if="recommendedPosts.length">
+          <div class="side-title">🔥 热门推荐</div>
+          <ul class="recommended-list">
+            <li v-for="post in recommendedPosts" :key="post.id" @click="$router.push(`/post/${post.id}`)">
+              <span class="post-title">{{ post.title }}</span>
+              <span class="post-views">{{ post.views }} 浏览</span>
+            </li>
           </ul>
         </div>
       </aside>
@@ -73,14 +76,18 @@
 
 <script>
 import { mapState } from 'vuex';
+import { getRecommendedPosts } from '../api';
 
 export default {
   name: 'AppLayout',
   data() {
     return {
       keyword: '',
-      hotTopics: ['如何高效写出第一篇技术贴', '毕业生如何建立个人作品集', '产品经理和前端如何更好协作', '你最近一次被好答案打动是什么时候']
+      recommendedPosts: []
     };
+  },
+  created() {
+    this.fetchRecommendedPosts();
   },
   computed: {
     ...mapState(['user', 'stats', 'unreadMap']),
@@ -109,6 +116,14 @@ export default {
       this.$message.success('已退出登录');
       if (this.$route.meta.auth) {
         this.$router.push('/');
+      }
+    },
+    async fetchRecommendedPosts() {
+      try {
+        const { data } = await getRecommendedPosts({ limit: 5 });
+        this.recommendedPosts = data;
+      } catch (error) {
+        // 错误已在 request.js 拦截器中处理
       }
     }
   },
@@ -218,11 +233,39 @@ export default {
 }
 .side-card ul {
   margin: 0;
-  padding-left: 18px;
+  padding-left: 0;
+  list-style: none;
   color: var(--subtext);
 }
 .side-card li + li {
   margin-top: 12px;
+}
+.recommended-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.recommended-list li:hover {
+  background: #f5f9ff;
+}
+.post-title {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.post-views {
+  font-size: 12px;
+  color: var(--subtext);
 }
 @media (max-width: 1024px) {
   .layout-grid {
@@ -235,20 +278,105 @@ export default {
 @media (max-width: 768px) {
   .topbar {
     width: calc(100% - 16px);
-    padding: 12px;
-    border-radius: 16px;
+    padding: 8px 12px;
+    border-radius: 12px;
     flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+  .brand strong {
+    font-size: 14px;
   }
   .search-box {
     width: 100%;
+  }
+  .search-box :deep(.el-input__inner) {
+    height: 32px;
+    line-height: 32px;
   }
   .topbar-right {
     width: 100%;
     justify-content: space-between;
     flex-wrap: wrap;
+    gap: 8px;
+  }
+  .topbar-right .el-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .user-box .el-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    line-height: 28px !important;
+  }
+  .user-meta strong {
+    font-size: 12px;
+  }
+  .user-meta span {
+    font-size: 10px;
   }
   .brand p {
     display: none;
+  }
+  
+  /* 手机端个人信息卡片优化 */
+  .profile-card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .profile-top .el-avatar {
+    width: 48px !important;
+    height: 48px !important;
+    line-height: 48px !important;
+  }
+  .profile-top h3 {
+    font-size: 14px;
+    margin: 0;
+  }
+  .profile-top p {
+    font-size: 11px;
+    margin: 4px 0 0;
+  }
+  .profile-stats {
+    margin: 12px 0;
+  }
+  .profile-stats strong {
+    font-size: 14px;
+  }
+  .profile-stats span {
+    font-size: 10px;
+    margin-top: 2px;
+  }
+  .profile-actions {
+    gap: 8px;
+  }
+  .profile-actions .el-button {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  
+  /* 手机端今日热点优化 */
+  .side-card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .side-title {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .side-card ul {
+    padding-left: 16px;
+  }
+  .side-card li {
+    font-size: 12px;
+  }
+  .side-card li + li {
+    margin-top: 8px;
   }
 }
 </style>
