@@ -26,7 +26,7 @@
       </div>
       <div class="post-body">{{ post.content }}</div>
       <div class="image-grid" v-if="post.images && post.images.length">
-        <img v-for="image in post.images" :key="image" :src="imageSrc(image)" alt="post image">
+        <img v-for="image in post.images" :key="image" :src="imageSrc(image)" alt="post image" @error="handleImageError">
       </div>
       <div class="action-row">
         <el-button :type="post.liked ? 'primary' : 'default'" icon="el-icon-thumb" @click="handleLike">{{ post.likeCount }}</el-button>
@@ -81,7 +81,8 @@ export default {
       comments: [],
       commentText: '',
       replyTarget: null,
-      baseURL: fileBaseURL
+      baseURL: fileBaseURL,
+      placeholderImage: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" preserveAspectRatio="none"%3E%3Crect fill="%23f0f2f5" width="100" height="100"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="10" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3E图片加载失败%3C/text%3E%3C/svg%3E'
     };
   },
   computed: {
@@ -96,6 +97,10 @@ export default {
   methods: {
     imageSrc(image) {
       return /^https?:\/\//.test(image) ? image : `${this.baseURL}${image}`;
+    },
+    handleImageError(event) {
+      event.target.src = this.placeholderImage;
+      event.target.onerror = null;
     },
     formatTime(value) {
       return String(value).replace('T', ' ').slice(0, 16);
@@ -194,7 +199,10 @@ export default {
 }
 .image-grid img {
   width: 100%;
+  height: 200px;
+  object-fit: cover;
   border-radius: 16px;
+  background-color: #f0f2f5;
 }
 .action-row {
   margin: 22px 0;

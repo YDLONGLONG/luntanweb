@@ -1,7 +1,7 @@
 <template>
   <div class="shell">
     <header class="topbar card-panel">
-      <div class="brand" @click="$router.push('/')">
+      <div class="brand" @click="goHome">
         <span class="brand-mark">知</span>
         <div>
           <strong>知屿论坛</strong>
@@ -57,6 +57,7 @@
           <div class="profile-actions">
             <el-button plain @click="$router.push('/follow')">我的关注</el-button>
             <el-button plain @click="$router.push('/profile')">个人主页</el-button>
+            <el-button plain @click="$router.push('/settings')">个人设置</el-button>
           </div>
         </div>
         <div class="card-panel side-card">
@@ -91,6 +92,11 @@ export default {
     }
   },
   methods: {
+    goHome() {
+      if (this.$route.path !== '/') {
+        this.$router.push('/');
+      }
+    },
     doSearch() {
       if (this.$route.name !== 'home') {
         this.$router.push({ path: '/', query: { keyword: this.keyword } });

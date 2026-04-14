@@ -8,6 +8,7 @@ import PublishView from '../views/PublishView.vue';
 import FollowView from '../views/FollowView.vue';
 import MessageView from '../views/MessageView.vue';
 import ProfileView from '../views/ProfileView.vue';
+import SettingsView from '../views/SettingsView.vue';
 
 Vue.use(Router);
 
@@ -21,7 +22,8 @@ const router = new Router({
     { path: '/publish/:id', name: 'publish-edit', component: PublishView, meta: { auth: true } },
     { path: '/follow', name: 'follow', component: FollowView, meta: { auth: true } },
     { path: '/messages', name: 'messages', component: MessageView, meta: { auth: true } },
-    { path: '/profile', name: 'profile', component: ProfileView, meta: { auth: true } }
+    { path: '/profile', name: 'profile', component: ProfileView, meta: { auth: true } },
+    { path: '/settings', name: 'settings', component: SettingsView, meta: { auth: true } }
   ]
 });
 

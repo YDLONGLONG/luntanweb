@@ -9,12 +9,22 @@ const savedUser = localStorage.getItem('forum-user');
 const savedStats = localStorage.getItem('forum-stats');
 const savedUnreadMap = localStorage.getItem('forum-unread-map');
 
+const parseLocalStorage = (value) => {
+  if (!value || value === 'undefined' || value === 'null') return null;
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    console.error('Failed to parse localStorage value:', error);
+    return null;
+  }
+};
+
 export default new Vuex.Store({
   state: {
     token: savedToken,
-    user: savedUser ? JSON.parse(savedUser) : null,
-    stats: savedStats ? JSON.parse(savedStats) : { follows: 0, fans: 0, posts: 0 },
-    unreadMap: savedUnreadMap ? JSON.parse(savedUnreadMap) : {}
+    user: parseLocalStorage(savedUser),
+    stats: parseLocalStorage(savedStats) || { follows: 0, fans: 0, posts: 0 },
+    unreadMap: parseLocalStorage(savedUnreadMap) || {}
   },
   mutations: {
     setAuth(state, payload) {
@@ -36,8 +46,8 @@ export default new Vuex.Store({
       localStorage.removeItem('forum-unread-map');
     },
     setProfile(state, payload) {
-      state.user = payload.user;
-      state.stats = payload.stats || state.stats;
+      Vue.set(state, 'user', payload.user);
+      Vue.set(state, 'stats', payload.stats || state.stats);
       localStorage.setItem('forum-user', JSON.stringify(payload.user));
       localStorage.setItem('forum-stats', JSON.stringify(state.stats));
     },

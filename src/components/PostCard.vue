@@ -11,7 +11,7 @@
     <h3>{{ post.title }}</h3>
     <p class="post-content">{{ post.content }}</p>
     <div v-if="post.images && post.images.length" class="image-grid">
-      <img v-for="image in post.images.slice(0, 3)" :key="image" :src="imageSrc(image)" alt="cover">
+      <img v-for="image in post.images.slice(0, 3)" :key="image" :src="imageSrc(image)" alt="cover" @error="handleImageError">
     </div>
     <div class="post-actions" @click.stop>
       <span><i class="el-icon-thumb"></i>{{ post.likeCount }} 点赞</span>
@@ -34,7 +34,8 @@ export default {
   },
   data() {
     return {
-      baseURL: fileBaseURL
+      baseURL: fileBaseURL,
+      placeholderImage: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f0f2f5" width="200" height="200"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="14" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3E图片加载失败%3C/text%3E%3C/svg%3E'
     };
   },
   methods: {
@@ -43,6 +44,10 @@ export default {
     },
     imageSrc(image) {
       return /^https?:\/\//.test(image) ? image : `${this.baseURL}${image}`;
+    },
+    handleImageError(event) {
+      event.target.src = this.placeholderImage;
+      event.target.onerror = null;
     }
   }
 };
