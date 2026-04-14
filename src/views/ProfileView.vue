@@ -21,8 +21,8 @@
     <div class="profile-grid">
       <div class="card-panel manager-card">
         <div class="section-title"><h3>我发布的帖子</h3></div>
-        <el-empty v-if="!dashboard.posts.length" description="还没有发布帖子" />
-        <div v-for="item in dashboard.posts" :key="item.id" class="manager-item">
+        <el-empty v-if="!posts.list.length" description="还没有发布帖子" />
+        <div v-for="item in posts.list" :key="item.id" class="manager-item">
           <div class="post-content" @click="$router.push(`/post/${item.id}`)">
             <strong>{{ item.title }}</strong>
             <p>{{ item.content }}</p>
@@ -39,12 +39,22 @@
             </div>
           </div>
         </div>
+        <el-pagination
+          v-if="posts.total > posts.limit"
+          class="pagination"
+          background
+          layout="prev, pager, next"
+          :current-page="posts.page"
+          :page-size="posts.limit"
+          :total="posts.total"
+          @current-change="handlePostsPageChange"
+        />
       </div>
 
       <div class="card-panel manager-card">
         <div class="section-title"><h3>我的评论</h3></div>
-        <el-empty v-if="!dashboard.comments.length" description="还没有评论记录" />
-        <div v-for="item in dashboard.comments" :key="item.id" class="manager-item comment-row">
+        <el-empty v-if="!comments.list.length" description="还没有评论记录" />
+        <div v-for="item in comments.list" :key="item.id" class="manager-item comment-row">
           <div class="comment-content" @click="$router.push(`/post/${item.postId}`)">
             <strong>评论于：{{ item.postTitle }}</strong>
             <p>
@@ -55,13 +65,23 @@
           </div>
           <el-button type="text" @click="handleDeleteComment(item)">删除</el-button>
         </div>
+        <el-pagination
+          v-if="comments.total > comments.limit"
+          class="pagination"
+          background
+          layout="prev, pager, next"
+          :current-page="comments.page"
+          :page-size="comments.limit"
+          :total="comments.total"
+          @current-change="handleCommentsPageChange"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { deleteComment, deletePost, getDashboard } from '../api';
+import { deleteComment, deletePost, getDashboard, getMyPosts, getMyComments } from '../api';
 
 export default {
   name: 'ProfileView',
@@ -70,14 +90,26 @@ export default {
       loading: false,
       dashboard: {
         user: null,
-        stats: { follows: 0, fans: 0, posts: 0 },
-        posts: [],
-        comments: []
+        stats: { follows: 0, fans: 0, posts: 0 }
+      },
+      posts: {
+        list: [],
+        total: 0,
+        page: 1,
+        limit: 5
+      },
+      comments: {
+        list: [],
+        total: 0,
+        page: 1,
+        limit: 5
       }
     };
   },
   created() {
     this.fetchDashboard();
+    this.fetchPosts();
+    this.fetchComments();
   },
   methods: {
     formatTime(value) {
@@ -93,14 +125,45 @@ export default {
         this.loading = false;
       }
     },
+    async fetchPosts() {
+      try {
+        const { data } = await getMyPosts({
+          page: this.posts.page,
+          limit: this.posts.limit
+        });
+        this.posts = data;
+      } catch (error) {
+        this.$message.error('获取帖子列表失败');
+      }
+    },
+    async fetchComments() {
+      try {
+        const { data } = await getMyComments({
+          page: this.comments.page,
+          limit: this.comments.limit
+        });
+        this.comments = data;
+      } catch (error) {
+        this.$message.error('获取评论列表失败');
+      }
+    },
+    handlePostsPageChange(page) {
+      this.posts.page = page;
+      this.fetchPosts();
+    },
+    handleCommentsPageChange(page) {
+      this.comments.page = page;
+      this.fetchComments();
+    },
     async handleDeleteComment(item) {
       await deleteComment(item.postId, item.id);
       this.$message.success('评论已删除');
-      await this.fetchDashboard();
+      await this.fetchComments();
     },
     async handleDeletePost(item) {
       await deletePost(item.id);
       this.$message.success('帖子已删除');
+      await this.fetchPosts();
       await this.fetchDashboard();
     }
   }
@@ -150,74 +213,111 @@ export default {
 }
 .profile-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 18px;
 }
 .manager-card {
-  padding: 22px;
+  padding: 20px;
+}
+.section-title {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.section-title h3 {
+  margin: 0;
+  font-size: 18px;
 }
 .manager-item {
   padding: 14px 0;
-  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--border);
 }
-.manager-item:first-of-type {
-  border-top: none;
+.manager-item:last-child {
+  border-bottom: none;
 }
-.post-content {
+.post-content,
+.comment-content {
   cursor: pointer;
 }
-.manager-item strong {
+.post-content strong,
+.comment-content strong {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  font-size: 16px;
 }
-.manager-item p {
+.post-content p,
+.comment-content p {
   margin: 0;
-  line-height: 1.8;
-  color: #384250;
+  color: var(--subtext);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.comment-content span {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--subtext);
 }
 .manager-bottom {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  align-items: center;
+  margin-top: 10px;
 }
 .manager-stats {
   display: flex;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 14px;
+  font-size: 13px;
   color: var(--subtext);
-  font-size: 12px;
 }
 .manager-actions {
   display: flex;
-  align-items: center;
   gap: 8px;
-}
-.danger {
-  color: #f56c6c;
 }
 .comment-row {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  align-items: flex-start;
 }
-.comment-content {
+.comment-row .comment-content {
   flex: 1;
-  cursor: pointer;
 }
-.comment-content span {
-  color: var(--subtext);
-  font-size: 12px;
+.pagination {
+  margin-top: 20px;
+  text-align: center;
 }
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .profile-grid {
     grid-template-columns: 1fr;
   }
-  .hero-top,
+}
+@media (max-width: 768px) {
+  .profile-hero {
+    padding: 16px;
+  }
+  .hero-user h2 {
+    font-size: 20px;
+  }
+  .hero-stats div {
+    padding: 12px;
+  }
+  .manager-card {
+    padding: 16px;
+  }
   .manager-bottom {
     flex-direction: column;
     align-items: flex-start;
+    gap: 8px;
+  }
+  .comment-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .comment-row .el-button {
+    align-self: flex-end;
   }
 }
 </style>

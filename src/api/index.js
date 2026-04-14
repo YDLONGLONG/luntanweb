@@ -12,6 +12,8 @@ export const deleteAccount = (data) => request.delete('/auth/account', { data })
 export const getSecurityQuestions = () => request.get('/auth/security-questions');
 export const getUserSecurityQuestion = (username) => request.get('/auth/security-question', { params: { username } });
 export const resetPassword = (data) => request.post('/auth/reset-password', data);
+export const getMyPosts = (params) => request.get('/auth/my-posts', { params });
+export const getMyComments = (params) => request.get('/auth/my-comments', { params });
 export const getPosts = (params) => request.get('/posts', { params });
 export const createPost = (data) => request.post('/posts', data);
 export const updatePost = (id, data) => request.put(`/posts/${id}`, data);
@@ -23,8 +25,8 @@ export const createComment = (id, data) => request.post(`/posts/${id}/comment`, 
 export const incrementViews = (id) => request.post(`/posts/${id}/views`);
 export const getRecommendedPosts = (params) => request.get('/posts/recommended', { params });
 export const deleteComment = (postId, commentId) => request.delete(`/posts/${postId}/comment/${commentId}`);
-export const getFollowing = () => request.get('/follows/following');
-export const getFans = () => request.get('/follows/fans');
+export const getFollowing = (params) => request.get('/follows/following', { params });
+export const getFans = (params) => request.get('/follows/fans', { params });
 export const toggleFollow = (id) => request.post(`/follows/${id}/toggle`);
 export const getConversations = () => request.get('/messages/conversations');
 export const getPrivateHistory = (id) => request.get(`/messages/private/${id}`);
