@@ -9,13 +9,16 @@
         </div>
       </div>
       <div class="topbar-right">
-        <el-input
-          v-model="keyword"
-          placeholder="搜索帖子、观点、经验"
-          prefix-icon="el-icon-search"
-          class="search-box"
-          @keyup.enter.native="doSearch"
-        />
+        <div class="search-wrapper">
+          <el-input
+            v-model="keyword"
+            placeholder="搜索帖子、观点、经验"
+            prefix-icon="el-icon-search"
+            class="search-box"
+            @keyup.enter.native="doSearch"
+          />
+          <el-button type="primary" icon="el-icon-search" @click="doSearch">搜索</el-button>
+        </div>
         <template v-if="user">
           <el-badge :value="totalUnread" :hidden="totalUnread <= 0">
             <el-button icon="el-icon-chat-line-square" circle @click="$router.push('/messages')" />
@@ -105,6 +108,9 @@ export default {
       }
     },
     doSearch() {
+      const currentKeyword = this.$route.query.keyword || '';
+      if (this.keyword === currentKeyword) return;
+      
       if (this.$route.name !== 'home') {
         this.$router.push({ path: '/', query: { keyword: this.keyword } });
       } else {
@@ -181,8 +187,13 @@ export default {
   align-items: center;
   gap: 12px;
 }
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .search-box {
-  width: 360px;
+  width: 280px;
 }
 .layout-grid {
   display: grid;
@@ -223,8 +234,15 @@ export default {
 }
 .profile-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.profile-actions .el-button {
+  padding: 8px 4px;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .side-title {
   margin-bottom: 14px;
@@ -270,6 +288,8 @@ export default {
 @media (max-width: 1024px) {
   .layout-grid {
     grid-template-columns: 1fr;
+    width: calc(100% - 16px);
+    padding: 0 8px;
   }
   .side-column {
     order: -1;
@@ -292,6 +312,10 @@ export default {
   .brand strong {
     font-size: 14px;
   }
+  .search-wrapper {
+    width: 100%;
+    order: 1;
+  }
   .search-box {
     width: 100%;
   }
@@ -299,13 +323,17 @@ export default {
     height: 32px;
     line-height: 32px;
   }
+  .search-wrapper .el-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
   .topbar-right {
     width: 100%;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 8px;
   }
-  .topbar-right .el-button {
+  .topbar-right > .el-button {
     padding: 8px 12px;
     font-size: 12px;
   }
@@ -353,30 +381,41 @@ export default {
     margin-top: 2px;
   }
   .profile-actions {
-    gap: 8px;
+    gap: 6px;
   }
   .profile-actions .el-button {
-    padding: 6px 8px;
+    padding: 6px 2px;
     font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   /* 手机端今日热点优化 */
   .side-card {
     padding: 12px;
     margin-bottom: 12px;
+    overflow: hidden;
   }
   .side-title {
     font-size: 14px;
     margin-bottom: 10px;
   }
   .side-card ul {
-    padding-left: 16px;
+    padding-left: 0;
   }
   .side-card li {
     font-size: 12px;
   }
   .side-card li + li {
     margin-top: 8px;
+  }
+  .recommended-list li {
+    padding: 6px;
+  }
+  .post-title {
+    font-size: 13px;
+    word-break: break-all;
   }
 }
 </style>

@@ -112,6 +112,10 @@ h3 {
   gap: 6px;
 }
 @media (max-width: 768px) {
+  .post-card {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
   .image-grid {
     grid-template-columns: 1fr;
   }
@@ -120,6 +124,16 @@ h3 {
   }
   h3 {
     font-size: 18px;
+    margin: 12px 0 8px;
+    word-break: break-all;
+  }
+  .post-content {
+    word-break: break-all;
+  }
+  .post-actions {
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 13px;
   }
 }
 </style>
