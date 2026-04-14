@@ -10,7 +10,6 @@
             <span>{{ dashboard.user.bio || '分享真实经验，参与有价值讨论。' }}</span>
           </div>
         </div>
-        <el-button plain round @click="handleLogout">退出登录</el-button>
       </div>
       <div class="hero-stats">
         <div><strong>{{ dashboard.stats.follows }}</strong><span>关注</span></div>
@@ -103,11 +102,6 @@ export default {
       await deletePost(item.id);
       this.$message.success('帖子已删除');
       await this.fetchDashboard();
-    },
-    async handleLogout() {
-      await this.$store.dispatch('logout');
-      this.$message.success('已退出登录');
-      this.$router.push('/');
     }
   }
 };

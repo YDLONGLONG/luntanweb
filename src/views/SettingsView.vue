@@ -57,13 +57,53 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
+      
+      <el-tab-pane label="账号安全" name="security">
+        <div class="danger-zone">
+          <h3>危险操作</h3>
+          <div class="danger-item">
+            <div class="danger-info">
+              <h4>退出登录</h4>
+              <p>退出当前账号，需要重新登录</p>
+            </div>
+            <el-button plain @click="handleLogout">退出登录</el-button>
+          </div>
+          <div class="danger-item">
+            <div class="danger-info">
+              <h4>注销账号</h4>
+              <p>永久删除账号及所有数据，此操作不可恢复</p>
+            </div>
+            <el-button type="danger" plain @click="showDeleteAccountDialog">注销账号</el-button>
+          </div>
+        </div>
+      </el-tab-pane>
     </el-tabs>
+    
+    <el-dialog
+      title="注销账号"
+      :visible.sync="deleteAccountDialogVisible"
+      width="400px"
+      :modal-append-to-body="false"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <p style="color: #f56c6c; margin-bottom: 16px;">警告：此操作将永久删除您的账号及所有相关数据，无法恢复！</p>
+      <el-form :model="deleteAccountForm" ref="deleteAccountForm">
+        <el-form-item label="请输入密码确认" prop="password">
+          <el-input v-model="deleteAccountForm.password" type="password" show-password />
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button @click="deleteAccountDialogVisible = false">取消</el-button>
+        <el-button type="danger" @click="handleDeleteAccount" :loading="deleteAccountLoading">确认注销</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
-import { updateProfile, updatePassword, uploadAvatar } from '../api';
+import { updateProfile, updatePassword, uploadAvatar, deleteAccount } from '../api';
 
 export default {
   name: 'SettingsView',
@@ -81,6 +121,11 @@ export default {
       profileLoading: false,
       passwordLoading: false,
       avatarLoading: false,
+      deleteAccountDialogVisible: false,
+      deleteAccountLoading: false,
+      deleteAccountForm: {
+        password: ''
+      },
       profileForm: {
         nickname: '',
         bio: ''
@@ -192,6 +237,40 @@ export default {
           this.passwordLoading = false;
         }
       });
+    },
+    handleLogout() {
+      this.$confirm('确定要退出登录吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$store.dispatch('logout');
+        this.$message.success('已退出登录');
+        this.$router.push('/');
+      }).catch(() => {});
+    },
+    showDeleteAccountDialog() {
+      this.deleteAccountForm.password = '';
+      this.deleteAccountDialogVisible = true;
+    },
+    async handleDeleteAccount() {
+      if (!this.deleteAccountForm.password) {
+        this.$message.error('请输入密码');
+        return;
+      }
+      
+      this.deleteAccountLoading = true;
+      try {
+        const { data } = await deleteAccount({ password: this.deleteAccountForm.password });
+        this.$message.success(data.message || '账号已注销');
+        this.deleteAccountDialogVisible = false;
+        this.$store.commit('clearAuth');
+        this.$router.push('/');
+      } catch (error) {
+        // 错误已在 request.js 拦截器中处理并显示
+      } finally {
+        this.deleteAccountLoading = false;
+      }
     }
   },
   watch: {
@@ -248,6 +327,39 @@ export default {
   margin: 0;
 }
 
+.danger-zone {
+  padding: 20px 0;
+}
+
+.danger-zone h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  color: #f56c6c;
+}
+
+.danger-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border: 1px solid #fde2e2;
+  border-radius: 8px;
+  background: #fef0f0;
+  margin-bottom: 16px;
+}
+
+.danger-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #f56c6c;
+}
+
+.danger-info p {
+  margin: 0;
+  font-size: 14px;
+  color: #909399;
+}
+
 :deep(.el-tabs__nav-wrap::after) {
   height: 1px;
   background-color: var(--line);
@@ -263,5 +375,19 @@ export default {
 
 :deep(.el-tabs__active-bar) {
   background-color: var(--primary);
+}
+
+:deep(.el-dialog__wrapper) {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  margin: 0;
+}
+
+body.el-popup-parent--hidden {
+  overflow: hidden !important;
 }
 </style>

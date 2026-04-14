@@ -14,6 +14,9 @@
             <el-input v-model="loginForm.password" type="password" placeholder="密码" />
           </el-form-item>
           <el-button type="primary" round @click="handleLogin">立即登录</el-button>
+          <div class="auth-links">
+            <el-button type="text" @click="$router.push('/forgot-password')">忘记密码？</el-button>
+          </div>
         </el-form>
       </el-tab-pane>
       <el-tab-pane label="注册" name="register">
@@ -27,6 +30,19 @@
           <el-form-item>
             <el-input v-model="registerForm.password" type="password" placeholder="密码" />
           </el-form-item>
+          <el-form-item>
+            <el-select v-model="registerForm.securityQuestion" placeholder="请选择安全问题（用于找回密码）" style="width: 100%">
+              <el-option
+                v-for="(question, index) in securityQuestions"
+                :key="index"
+                :label="question"
+                :value="question"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="registerForm.securityQuestion">
+            <el-input v-model="registerForm.securityAnswer" placeholder="请输入安全问题答案" />
+          </el-form-item>
           <el-button type="primary" round @click="handleRegister">注册并登录</el-button>
         </el-form>
       </el-tab-pane>
@@ -35,7 +51,7 @@
 </template>
 
 <script>
-import { login, register } from '../api';
+import { login, register, getSecurityQuestions } from '../api';
 
 export default {
   name: 'AuthView',
@@ -43,10 +59,22 @@ export default {
     return {
       activeTab: 'login',
       loginForm: { username: '', password: '' },
-      registerForm: { username: '', password: '', nickname: '' }
+      registerForm: { username: '', password: '', nickname: '', securityQuestion: '', securityAnswer: '' },
+      securityQuestions: []
     };
   },
+  created() {
+    this.fetchSecurityQuestions();
+  },
   methods: {
+    async fetchSecurityQuestions() {
+      try {
+        const { data } = await getSecurityQuestions();
+        this.securityQuestions = data;
+      } catch (error) {
+        // 错误已在 request.js 拦截器中处理
+      }
+    },
     async handleLogin() {
       const { data } = await login(this.loginForm);
       this.$store.commit('setAuth', data);
@@ -82,5 +110,12 @@ export default {
 }
 .el-button {
   width: 100%;
+}
+.auth-links {
+  text-align: center;
+  margin-top: 12px;
+}
+.auth-links .el-button {
+  width: auto;
 }
 </style>

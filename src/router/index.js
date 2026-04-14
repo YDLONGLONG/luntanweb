@@ -9,6 +9,7 @@ import FollowView from '../views/FollowView.vue';
 import MessageView from '../views/MessageView.vue';
 import ProfileView from '../views/ProfileView.vue';
 import SettingsView from '../views/SettingsView.vue';
+import ForgotPasswordView from '../views/ForgotPasswordView.vue';
 
 Vue.use(Router);
 
@@ -23,7 +24,8 @@ const router = new Router({
     { path: '/follow', name: 'follow', component: FollowView, meta: { auth: true } },
     { path: '/messages', name: 'messages', component: MessageView, meta: { auth: true } },
     { path: '/profile', name: 'profile', component: ProfileView, meta: { auth: true } },
-    { path: '/settings', name: 'settings', component: SettingsView, meta: { auth: true } }
+    { path: '/settings', name: 'settings', component: SettingsView, meta: { auth: true } },
+    { path: '/forgot-password', name: 'forgot-password', component: ForgotPasswordView }
   ]
 });
 
